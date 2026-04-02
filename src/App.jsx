@@ -1,6 +1,6 @@
 import NavBar from "./components/NavBar";
 import HeroSection from "./sections/HeroSection";
-import { ScrollSmoother, ScrollTrigger } from "gsap/all";
+import { ScrollTrigger } from "gsap/all";
 import gsap from "gsap";
 import MessageSection from "./sections/MessageSection";
 import FlavorSection from "./sections/FlavorSection";
@@ -9,15 +9,32 @@ import NutritionSection from "./sections/NutritionSection";
 import BenefitSection from "./sections/BenefitSection";
 import TestimonialSection from "./sections/TestimonialSection";
 import FooterSection from "./sections/FooterSection";
+import Lenis from "lenis";
 
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+gsap.registerPlugin(ScrollTrigger);
 
 const App = () => {
   useGSAP(() => {
-    ScrollSmoother.create({
-      smooth: 3,
-      effects: true,
+    // Initialize Lenis for smooth scrolling
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+      smoothWheel: true,
+      touchMultiplier: 2,
     });
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      lenis.destroy();
+      gsap.ticker.remove(lenis.raf);
+    };
   });
 
   return (
